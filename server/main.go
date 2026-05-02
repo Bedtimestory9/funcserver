@@ -19,7 +19,6 @@ func main() {
 	// fetch session
 
 	newSession := session.NewSessionManager()
-	newSession.AddUserToSession("1") // INFO: for demo purposes
 
 	// router
 

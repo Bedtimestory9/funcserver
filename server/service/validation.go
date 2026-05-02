@@ -25,10 +25,12 @@ func loginValidation(mux *http.ServeMux, conn *pgx.Conn, s *session.SessionManag
 		p := records[0].Password
 		err = db.QueryUser(conn, u, p)
 		if err != nil {
+			w.WriteHeader(401)
 			w.Write([]byte("Username or password incorrect"))
 		} else {
-			w.Write([]byte("Log in successfully"))
+			w.WriteHeader(303)
 			s.AddUserToSession(u)
+			w.Write([]byte("/login/" + u))
 		}
 	})
 }

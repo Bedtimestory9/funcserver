@@ -2,7 +2,6 @@
 package page
 
 import (
-	"funcserver/server/preflight"
 	"funcserver/server/router"
 	"funcserver/server/session"
 	"html/template"
@@ -49,7 +48,7 @@ func PagePipe(mux *http.ServeMux, s *session.SessionManager) {
 		// It doesn't do anything for now,
 		// since EnableCors() does not work
 		// on other service routes, and "/" does not need it
-		preflight.PreflightPipe(w, r)
+		// preflight.PreflightPipe(w, r)
 
 		tmplData := session.SessionPipe(w, r, s)
 
