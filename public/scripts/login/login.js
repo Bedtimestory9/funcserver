@@ -20,19 +20,15 @@ submitButn.addEventListener("click", async (e) => {
                     password: passwordVal,
                 }])
         });
-        const status = response.status;
-        const responseText = await response.text();
+        const responseJSON = await response.json();
         if (bannerText) {
-            switch (status) {
-                case 200:
-                    window.location.href = domain + responseText;
-                    break;
-                case 303:
-                    window.location.href = domain + responseText;
+            switch (responseJSON.result) {
+                case "success":
+                    window.location.href = domain + responseJSON.redirectURL;
                     break;
                 default:
                     bannerText.style.color = 'maroon';
-                    bannerText.textContent = responseText;
+                    bannerText.textContent = responseJSON.message;
             }
         }
         await new Promise(resolve => setTimeout(resolve, 3000));

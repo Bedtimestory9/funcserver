@@ -35,6 +35,7 @@ func RouterPipe(r *http.Request) (bool, string) {
 		"login",
 		"product",
 		"interaction",
+		"signup",
 		// "service" does not serve any page, see page.go for implementation
 		"service",
 	}

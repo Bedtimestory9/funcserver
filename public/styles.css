@@ -95,13 +95,13 @@ nav {
     justify-content: space-around;
 }
 
-.login-div {
+.login-div, .signup-div {
     font-size: 2em;
     border: 1px black solid;
 }
 
-.login-form {
-    height: 20em;
+.login-form, .signup-form {
+    height: 30em;
     width: 40em;
     margin: auto;
     display: flex;
@@ -120,12 +120,13 @@ nav {
     text-align: center;
 }
 
-.username-div, .password-div {
+.username-div, .password-div, .age-div, .email-div {
+    text-transform: capitalize;
     color: #f0ebdf;
     gap: 0.5em;
 }
 
-#username, #password {
+#username, #password, #age, #email {
     height: 2em;
     width: 30em;
 }
@@ -136,7 +137,7 @@ nav {
     justify-content: flex-end;
 }
 
-#login-btn {
+#login-btn, #signup-btn {
     height: 3em;
     width: 6em;
     background-color: #3e5f9d;

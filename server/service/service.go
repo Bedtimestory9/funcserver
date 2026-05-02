@@ -12,5 +12,6 @@ import (
 
 func ServicePipe(mux *http.ServeMux, conn *pgx.Conn, s *session.SessionManager) {
 	loginValidation(mux, conn, s)
+	signupValidation(mux, conn, s)
 	getUserMood(mux, conn)
 }

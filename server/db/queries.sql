@@ -7,7 +7,11 @@ password varchar(40) NOT NULL
 );
 
 -- select table
-SELECT * FROM user_table;
+SELECT * FROM user;
+
+-- alter table
+ALTER TABLE users
+ADD age integer; 
 
 -- insert to table
 INSERT INTO users (username, password) VALUES 

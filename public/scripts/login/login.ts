@@ -5,6 +5,12 @@ const bannerText = document.getElementById("banner-text")
 
 const domain = "http://localhost:3000"
 
+type LoginResponse = {
+    result: string,
+    message: string
+    redirectURL: string
+}
+
 submitButn.addEventListener("click", async (e) => {
     e.preventDefault()
     const usernameVal = usernameInput.value
@@ -23,19 +29,15 @@ submitButn.addEventListener("click", async (e) => {
             }])
         })
 
-        const status = response.status
-        const responseText = await response.text()
+        const responseJSON: LoginResponse = await response.json()
         if (bannerText) {
-            switch (status) {
-                case 200:
-                    window.location.href = domain + responseText
-                    break;
-                case 303:
-                    window.location.href = domain + responseText
+            switch (responseJSON.result) {
+                case "success":
+                    window.location.href = domain + responseJSON.redirectURL
                     break;
                 default:
                     bannerText.style.color = 'maroon'
-                    bannerText.textContent = responseText
+                    bannerText.textContent = responseJSON.message
             }
         }
         await new Promise(resolve => setTimeout(resolve, 3000))
