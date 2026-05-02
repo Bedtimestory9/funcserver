@@ -1,0 +1,144 @@
+html {
+    font-size: 62.5%;
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    padding: 0;
+    background-color: #f0ebdf;
+}
+
+nav {
+    background-color:#6c87b2;
+    width: 100vw;
+    height: 10rem;
+    color: #f0ebdf;
+}
+
+
+.nav-title{
+    font-size: 3em;
+    padding: 0.3em;
+}
+
+.front {
+    font-size: 4em;
+}
+
+.login-status{
+    font-size: 3em;
+    text-align: center;
+}
+
+.content {
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    align-items: center;
+    justify-content: center;
+    gap: 1em;
+}
+
+.display-row {
+    display: flex;
+    gap: 1em;
+}
+
+.btn-row {
+    display: flex;
+    gap: 1em;
+}
+
+.btn1, .btn2 {
+    font-size: 2em;
+    color: white;
+    height: 20rem;
+    width: 40rem;
+    background-color: #3e5f9d;
+    border: 0.1em solid #000;
+}
+
+.btn1:disabled, .btn2:disabled {
+    background-color: maroon;
+}
+
+.btn1:enabled:active, .btn2:enabled:active {
+    background-color: #6c87b2;
+}
+
+.display1, .display2 {
+    display: inline-flex;
+    flex-direction: column;
+    font-size: 2em;
+    height: 20rem;
+    width: 40rem;
+    border: 0.1em solid #000;
+    justify-content: center;
+    align-items: center;
+    background-color: whitesmoke;
+}
+
+.name {
+    display: flex;
+    width: 100%;
+    justify-content: space-around;
+}
+
+.d1, .d2 {
+    width: 8em;
+}
+
+.mood {
+    display: flex;
+    width: 100%;
+    justify-content: space-around;
+}
+
+.login-div {
+    font-size: 2em;
+    border: 1px black solid;
+}
+
+.login-form {
+    height: 20em;
+    width: 40em;
+    margin: auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 2em;
+    background-color: #6c87b2;
+}
+
+.banner-text {
+    font-size: 1em;
+    height: 2em;
+    width: 20em;
+    color: red;
+    text-align: center;
+}
+
+.username-div, .password-div {
+    color: #f0ebdf;
+    gap: 0.5em;
+}
+
+#username, #password {
+    height: 2em;
+    width: 30em;
+}
+
+.btn-div {
+    width: 20em;
+    display: flex;
+    justify-content: flex-end;
+}
+
+#login-btn {
+    height: 3em;
+    width: 6em;
+    background-color: #3e5f9d;
+    color: #f0ebdf;
+}
