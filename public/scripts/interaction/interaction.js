@@ -5,12 +5,13 @@ const moodDiv = document.getElementsByClassName("d2")[0];
 const button1 = document.getElementsByClassName("btn1")[0];
 const button2 = document.getElementsByClassName("btn2")[0];
 const baseURL = window.location.pathname;
-const getRequestURL = "http://127.0.0.1:3000/service/interaction/get-user-mood";
+const domain = "http://localhost:3000";
+const getRequestURL = "/service/interaction/get-user-mood";
 button1.addEventListener("click", () => {
     displayDiv1.textContent = "Waiting for server response...";
     void (async function () {
         try {
-            const res = await fetch(getRequestURL);
+            const res = await fetch(domain + getRequestURL);
             button1.disabled = true;
             button1.textContent = "Disabled";
             if (!res.ok) {
@@ -33,7 +34,7 @@ button2.addEventListener("click", () => {
     nameDiv.textContent = "Waiting response...";
     moodDiv.textContent = "Waiting response...";
     void (async function () {
-        const res = await fetch("http://127.0.0.1:3000/service/interaction/get-user-mood", {});
+        const res = await fetch(domain + getRequestURL, {});
         if (!res.ok) {
             throw new Error(`HTTP error, status = ${res.status}`);
         }
