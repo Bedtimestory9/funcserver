@@ -2,15 +2,43 @@
 package page
 
 import (
-	"funcserver/server/router"
-	"funcserver/server/session"
 	"html/template"
 	"log"
 	"net/http"
 	"os"
 )
 
-func nestPageInLayout(w http.ResponseWriter, route string, tmplData session.TMPLData) {
+// type TMPLData struct {
+// 	Title    string
+// 	UserID   string
+// 	IsAuthed bool
+// }
+
+type MainRoute struct {
+	Route string
+}
+
+// func PassIfAuthTMPLData(authed bool) TMPLData {
+// 	var tmplData TMPLData
+//
+// 	if authed {
+// 		tmplData = TMPLData{
+// 			Title:    "User Session",
+// 			UserID:   "User logged in",
+// 			IsAuthed: true,
+// 		}
+// 	} else {
+// 		tmplData = TMPLData{
+// 			Title:    "Guest Session",
+// 			UserID:   "Please Log In",
+// 			IsAuthed: false,
+// 		}
+// 	}
+//
+// 	return tmplData
+// }
+
+func nestPageInLayout(w http.ResponseWriter, route string) {
 	wd, err := os.Getwd()
 	if err != nil {
 		log.Fatal(err)
@@ -21,39 +49,42 @@ func nestPageInLayout(w http.ResponseWriter, route string, tmplData session.TMPL
 	if err != nil {
 		panic(err)
 	}
-	err = tmpl.Execute(w, tmplData)
+	err = tmpl.Execute(w, nil)
 	if err != nil {
 		panic(err)
 	}
 }
 
-func serveRouterPage(w http.ResponseWriter, routeExist bool, route string, tmplData session.TMPLData) {
+
+func (m MainRoute) ServePageHandler(w http.ResponseWriter, r *http.Request) {
 	// "service" is skipped from serving page
-	if routeExist && route != "service" {
-		nestPageInLayout(w, route, tmplData)
-	} else if route == "/" {
-		route = "home"
-		nestPageInLayout(w, route, tmplData)
+	if m.Route != "/service" {
+		nestPageInLayout(w, m.Route)
+	} else if m.Route == "/" {
+		m.Route = "/home"
+		nestPageInLayout(w, m.Route)
 	} else {
 		w.WriteHeader(404)
 		w.Write([]byte("Page Not Found"))
 	}
 }
 
-func PagePipe(mux *http.ServeMux, s *session.SessionManager) {
-	mux.Handle("/styles.css", http.FileServer(http.Dir("public")))
-	mux.Handle("/scripts/", http.FileServer(http.Dir("public")))
-	mux.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+func RouterPipe(mux *http.ServeMux) {
+	routes := []string{
+		"/",
+		"/home",
+		"/login",
+		"/product",
+		"/interaction",
+		"/signup",
+		// "service" does not serve any page
+		"/service",
+	}
 
-		// It doesn't do anything for now,
-		// since EnableCors() does not work
-		// on other service routes, and "/" does not need it
-		// preflight.PreflightPipe(w, r)
+	mainRoute := MainRoute{}
 
-		tmplData := session.SessionPipe(w, r, s)
-
-		re, route := router.RouterPipe(r)
-
-		serveRouterPage(w, re, route, tmplData)
-	})
+	for _, r := range routes {
+		mainRoute.Route = r
+		mux.HandleFunc(r, mainRoute.ServePageHandler)
+	}
 }

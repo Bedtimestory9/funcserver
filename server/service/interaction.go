@@ -10,12 +10,14 @@ import (
 
 func getUserMood(mux *http.ServeMux, conn *pgx.Conn) {
 	mux.HandleFunc("GET /service/interaction/get-user-mood", func(w http.ResponseWriter, r *http.Request) {
+		var record db.MoodRecord
+		err := db.QueryUserMood(conn, &record)
 
-		out, err := db.QueryUserMood(conn)
 		if err != nil {
 			fmt.Println("querying DB error")
 		}
 
+		out := db.EncodeJSON(record)
 		w.Write([]byte(out))
 	})
 }

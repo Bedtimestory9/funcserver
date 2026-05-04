@@ -4,14 +4,13 @@
 package service
 
 import (
-	"funcserver/server/session"
 	"net/http"
 
 	"github.com/jackc/pgx/v5"
 )
 
-func ServicePipe(mux *http.ServeMux, conn *pgx.Conn, s *session.SessionManager) {
-	loginValidation(mux, conn, s)
-	signupValidation(mux, conn, s)
+func ServicePipe(mux *http.ServeMux, conn *pgx.Conn) {
+	loginValidation(mux, conn)
+	signupValidation(mux, conn)
 	getUserMood(mux, conn)
 }

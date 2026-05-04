@@ -1,11 +1,11 @@
 package db
 
 type Record interface {
-	MoodRecord | UserRecord | UserSignupRecord
+	MoodRecord | UserRecord
 }
 
 type Response interface {
-	LoginResponse
+	LoginResponse | UserSignupResponse
 }
 
 type MoodRecord struct {
@@ -14,14 +14,6 @@ type MoodRecord struct {
 }
 
 type UserRecord struct {
-	Email    string `json:"email"`
-	Username string `json:"username"`
-	Password string `json:"password"`
-	// ,string is for marshalling string to int for Go value
-	Age int `json:"age,string"`
-}
-
-type UserSignupRecord struct {
 	Email    string `json:"email"`
 	Username string `json:"username"`
 	Password string `json:"password"`

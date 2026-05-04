@@ -5,7 +5,9 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
+	"net/http"
 	"strings"
 
 	"os"
@@ -32,42 +34,34 @@ func DecodeJSON[R Record](jsonData []byte, records *[]R) *[]R {
 	return records
 }
 
-func QueryUserMood(conn *pgx.Conn) (string, error) {
-	var record MoodRecord
+func WriteJSONResponse[R Response](res *R, w http.ResponseWriter) {
+	w.WriteHeader(401)
+	jsonData, err := json.Marshal(res)
+	if err != nil {
+		fmt.Println("failed marshalling data to json")
+	}
+	w.Write(jsonData)
+}
+
+func QueryUserMood(conn *pgx.Conn, record *MoodRecord) error {
 	err := conn.QueryRow(context.Background(),
 		"SELECT name, mood FROM golang_table WHERE name='lawrence'").
 		Scan(&record.Name, &record.Mood)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "QueryRow failed: %v\n", err)
 	}
-
-	return EncodeJSON(record), err
+	return err
 }
 
-func QueryLoginUser(conn *pgx.Conn, u string, p string) (LoginResponse, error) {
+func QueryLoginUser(conn *pgx.Conn, u string, p string) error {
 	var record UserRecord
 	err := conn.QueryRow(context.Background(),
 		"SELECT username, password FROM users WHERE username=$1 AND password=$2", u, p).
 		Scan(&record.Username, &record.Password)
-	res := LoginResponse{}
-
-	if err != nil {
-		fmt.Fprintf(os.Stderr, "QueryRow failed: %v\n", err)
-		res.Result = "fail"
-		res.Message = "Incorrect username or password"
-		return res, err
-	}
-
-	res.Result = "success"
-	res.RedirectURL = "/home/" + u
-
-	return res, nil
+	return err
 }
 
-func QuerySignupUser(conn *pgx.Conn, e string, u string) (UserSignupResponse, bool) {
-	var record UserSignupRecord
-	res := UserSignupResponse{}
-
+func QuerySignupUser(conn *pgx.Conn, e string, u string, record *UserRecord) error {
 	emailErr := conn.QueryRow(context.Background(),
 		"SELECT email FROM users WHERE email=$1", e).
 		Scan(&record.Email)
@@ -78,29 +72,21 @@ func QuerySignupUser(conn *pgx.Conn, e string, u string) (UserSignupResponse, bo
 
 	// != nil meaning can't find it
 	if emailErr != nil && usernameErr != nil {
-		fmt.Fprintf(os.Stderr, "Email QueryRow failed: %v, username QueryRow failed: %v but it's intended\n", emailErr, usernameErr)
-		return res, true
+		fmt.Println("user hasn't been registered")
+		return nil
 	} else {
-		res.EmailError = "This emails or username has been registered"
-		return res, false
+		err := errors.New("user has been registered")
+		return err
 	}
 }
 
-func InsertSignupUser(conn *pgx.Conn, e string, u string, p string, a int, res *UserSignupResponse) UserSignupResponse {
+func InsertSignupUser(conn *pgx.Conn, e string, u string, p string, a int) error {
 	_, err := conn.Exec(context.Background(),
 		"INSERT INTO users (email, username, password, age) VALUES ($1, $2, $3, $4)",
 		e, u, p, a,
 	)
 
-	if err != nil {
-		fmt.Fprintf(os.Stderr, "QueryRow failed: %v\n", err)
-		res.GeneralMessage = "Signing up user failed for interal reason"
-	} else {
-		res.GeneralMessage = "Signed up successfully"
-		res.RedirectURL = "/home/" + u
-	}
-
-	return *res
+	return err
 }
 
 func SetupDB() *pgx.Conn {

@@ -4,7 +4,6 @@ import (
 	"funcserver/server/db"
 	"funcserver/server/page"
 	"funcserver/server/service"
-	"funcserver/server/session"
 	"log"
 	"net/http"
 )
@@ -14,20 +13,14 @@ func main() {
 
 	mux := http.NewServeMux()
 
-	// preflight
+	mux.Handle("/styles.css", http.FileServer(http.Dir("public")))
+	mux.Handle("/scripts/", http.FileServer(http.Dir("public")))
 
-	// fetch session
-
-	newSession := session.NewSessionManager()
-
-	// router
-
-	// serve content
-
-	page.PagePipe(mux, newSession)
+	// serve page content
+	page.RouterPipe(mux)
 
 	// serve service
-	service.ServicePipe(mux, conn, newSession)
+	service.ServicePipe(mux, conn)
 
 	log.Fatal(http.ListenAndServe(":3000", mux))
 }
