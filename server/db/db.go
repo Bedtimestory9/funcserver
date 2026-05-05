@@ -5,7 +5,6 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
-	"errors"
 	"fmt"
 	"net/http"
 	"strings"
@@ -43,7 +42,7 @@ func WriteJSONResponse[R Response](res *R, w http.ResponseWriter) {
 	w.Write(jsonData)
 }
 
-func QueryUserMood(conn *pgx.Conn, record *MoodRecord) error {
+func QueryUserAndMood(conn *pgx.Conn, record *MoodRecord) error {
 	err := conn.QueryRow(context.Background(),
 		"SELECT name, mood FROM golang_table WHERE name='lawrence'").
 		Scan(&record.Name, &record.Mood)
@@ -53,7 +52,7 @@ func QueryUserMood(conn *pgx.Conn, record *MoodRecord) error {
 	return err
 }
 
-func QueryLoginUser(conn *pgx.Conn, u string, p string) error {
+func QueryUserAndPassword(conn *pgx.Conn, u string, p string) error {
 	var record UserRecord
 	err := conn.QueryRow(context.Background(),
 		"SELECT username, password FROM users WHERE username=$1 AND password=$2", u, p).
@@ -61,26 +60,15 @@ func QueryLoginUser(conn *pgx.Conn, u string, p string) error {
 	return err
 }
 
-func QuerySignupUser(conn *pgx.Conn, e string, u string, record *UserRecord) error {
-	emailErr := conn.QueryRow(context.Background(),
-		"SELECT email FROM users WHERE email=$1", e).
+func QueryEmailAndUser(conn *pgx.Conn, e string, u string, record *UserRecord) error {
+	err := conn.QueryRow(context.Background(),
+		"SELECT email, username FROM users WHERE email=$1 AND username=$2", e, u).
 		Scan(&record.Email)
 
-	usernameErr := conn.QueryRow(context.Background(),
-		"SELECT username FROM users WHERE username=$1", u).
-		Scan(&record.Username)
-
-	// != nil meaning can't find it
-	if emailErr != nil && usernameErr != nil {
-		fmt.Println("user hasn't been registered")
-		return nil
-	} else {
-		err := errors.New("user has been registered")
-		return err
-	}
+	return err
 }
 
-func InsertSignupUser(conn *pgx.Conn, e string, u string, p string, a int) error {
+func InsertUserForSignUp(conn *pgx.Conn, e string, u string, p string, a int) error {
 	_, err := conn.Exec(context.Background(),
 		"INSERT INTO users (email, username, password, age) VALUES ($1, $2, $3, $4)",
 		e, u, p, a,

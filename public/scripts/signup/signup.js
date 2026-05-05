@@ -13,19 +13,19 @@ submitButn.addEventListener("click", async (e) => {
     const passwordVal = passwordInput.value;
     const ageVal = ageInput.value;
     if (bannerText) {
-        bannerText.style.color = 'black';
+        bannerText.style.color = "black";
         bannerText.textContent = "Signing up...";
     }
     try {
-        const jsonBody = JSON.stringify([{
-                email: emailVal,
-                username: usernameVal,
-                password: passwordVal,
-                age: ageVal
-            }]);
+        const jsonBody = JSON.stringify({
+            email: emailVal,
+            username: usernameVal,
+            password: passwordVal,
+            age: ageVal,
+        });
         const response = await fetch(domain + "/service/validation/signup-validation", {
             method: "POST",
-            body: jsonBody
+            body: jsonBody,
         });
         const responseJSON = await response.json();
         if (bannerText) {
@@ -33,7 +33,7 @@ submitButn.addEventListener("click", async (e) => {
                 window.location.href = domain + responseJSON.redirectURL;
             }
             else {
-                bannerText.style.color = 'maroon';
+                bannerText.style.color = "maroon";
                 bannerText.textContent = `
     ${responseJSON.emailError && `email: ${responseJSON.emailError}`} \n
     ${responseJSON.ageError && `age: ${responseJSON.ageError}`} \n

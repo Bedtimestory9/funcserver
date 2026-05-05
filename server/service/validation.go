@@ -1,6 +1,7 @@
 package service
 
 import (
+	"bytes"
 	"encoding/json"
 	"fmt"
 	"funcserver/server/db"
@@ -25,7 +26,7 @@ func loginValidation(mux *http.ServeMux, conn *pgx.Conn) {
 		u := records[0].Username
 		p := records[0].Password
 
-		err = db.QueryLoginUser(conn, u, p)
+		err = db.QueryUserAndPassword(conn, u, p)
 
 		res := db.LoginResponse{}
 
@@ -57,25 +58,29 @@ func loginValidation(mux *http.ServeMux, conn *pgx.Conn) {
 func signupValidation(mux *http.ServeMux, conn *pgx.Conn) {
 	mux.HandleFunc("POST /service/validation/signup-validation", func(w http.ResponseWriter, r *http.Request) {
 		b, err := io.ReadAll(r.Body)
+
 		if err != nil {
-			fmt.Println("No body has been posted.")
+			fmt.Println("error reading request body")
 		}
-
-		var records []db.UserRecord
-		db.DecodeJSON(b, &records)
-
-		e := records[0].Email
-		u := records[0].Username
-		p := records[0].Password
-		a := records[0].Age
 
 		res := db.UserSignupResponse{}
 
-		// if reflect.TypeOf(a).Kind() != reflect.Int {
-		// 	res.AgeError = "must be a number"
-		// 	db.WriteJSONResponse(&res, w)
-		// 	return
-		// }
+		var userRecord []db.UserRecord
+		dec := json.NewDecoder(bytes.NewReader(b))
+		dec.DisallowUnknownFields()
+		err = dec.Decode(&userRecord)
+
+		if err != nil {
+			fmt.Printf("error decoding json body %v", err)
+			res.GeneralMessage = "missing field or incorrect characters type in field"
+			db.WriteJSONResponse(&res, w)
+			return
+		}
+
+		e := userRecord[0].Email
+		u := userRecord[0].Username
+		p := userRecord[0].Password
+		a := userRecord[0].Age
 
 		if a < 1 {
 			res.AgeError = "can not be smaller than 1"
@@ -101,14 +106,14 @@ func signupValidation(mux *http.ServeMux, conn *pgx.Conn) {
 
 		res = db.UserSignupResponse{}
 
-		err = db.QuerySignupUser(conn, e, u, &record)
+		err = db.QueryEmailAndUser(conn, e, u, &record)
 
 		if err != nil {
 			res.EmailError = "this email or username has been registered"
 
 			db.WriteJSONResponse(&res, w)
 		} else {
-			err = db.InsertSignupUser(conn, e, u, p, a)
+			err = db.InsertUserForSignUp(conn, e, u, p, a)
 
 			if err != nil {
 				fmt.Fprintf(os.Stderr, "QueryRow failed: %v\n", err)

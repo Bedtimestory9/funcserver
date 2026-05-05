@@ -6,6 +6,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"strings"
 )
 
 // type TMPLData struct {
@@ -38,14 +39,16 @@ type MainRoute struct {
 // 	return tmplData
 // }
 
-func nestPageInLayout(w http.ResponseWriter, route string) {
+func serveTemplate(w http.ResponseWriter, pageRoute string) {
 	wd, err := os.Getwd()
 	if err != nil {
 		log.Fatal(err)
 	}
 
+	routeParam := strings.Split(pageRoute, "/")[1]
+
 	// the order of the files matter, base first
-	tmpl, err := template.ParseFiles(wd+"/server/views/layout.html", wd+"/server/views/"+route+"/"+route+".html")
+	tmpl, err := template.ParseFiles(wd+"/server/views/layout.html", wd+"/server/views/"+routeParam+"/"+routeParam+".html")
 	if err != nil {
 		panic(err)
 	}
@@ -55,17 +58,16 @@ func nestPageInLayout(w http.ResponseWriter, route string) {
 	}
 }
 
-
-func (m MainRoute) ServePageHandler(w http.ResponseWriter, r *http.Request) {
-	// "service" is skipped from serving page
-	if m.Route != "/service" {
-		nestPageInLayout(w, m.Route)
-	} else if m.Route == "/" {
-		m.Route = "/home"
-		nestPageInLayout(w, m.Route)
-	} else {
+func (m MainRoute) pageHandler(w http.ResponseWriter, r *http.Request) {
+	switch m.Route {
+	case "/":
+		m.Route = "home"
+		serveTemplate(w, m.Route)
+	case "/service":
 		w.WriteHeader(404)
-		w.Write([]byte("Page Not Found"))
+		w.Write([]byte("Page not found"))
+	default:
+		serveTemplate(w, m.Route)
 	}
 }
 
@@ -85,6 +87,6 @@ func RouterPipe(mux *http.ServeMux) {
 
 	for _, r := range routes {
 		mainRoute.Route = r
-		mux.HandleFunc(r, mainRoute.ServePageHandler)
+		mux.HandleFunc(r, mainRoute.pageHandler)
 	}
 }
