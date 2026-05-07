@@ -9,35 +9,9 @@ import (
 	"strings"
 )
 
-// type TMPLData struct {
-// 	Title    string
-// 	UserID   string
-// 	IsAuthed bool
-// }
-
 type MainRoute struct {
 	Route string
 }
-
-// func PassIfAuthTMPLData(authed bool) TMPLData {
-// 	var tmplData TMPLData
-//
-// 	if authed {
-// 		tmplData = TMPLData{
-// 			Title:    "User Session",
-// 			UserID:   "User logged in",
-// 			IsAuthed: true,
-// 		}
-// 	} else {
-// 		tmplData = TMPLData{
-// 			Title:    "Guest Session",
-// 			UserID:   "Please Log In",
-// 			IsAuthed: false,
-// 		}
-// 	}
-//
-// 	return tmplData
-// }
 
 func serveTemplate(w http.ResponseWriter, pageRoute string) {
 	wd, err := os.Getwd()

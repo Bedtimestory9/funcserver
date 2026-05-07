@@ -6,7 +6,6 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"net/http"
 	"strings"
 
 	"os"
@@ -31,15 +30,6 @@ func DecodeJSON[R Record](jsonData []byte, records *[]R) *[]R {
 		fmt.Fprintf(os.Stderr, "Unmarshalling json error: %v\n", err)
 	}
 	return records
-}
-
-func WriteJSONResponse[R Response](res *R, w http.ResponseWriter) {
-	w.WriteHeader(401)
-	jsonData, err := json.Marshal(res)
-	if err != nil {
-		fmt.Println("failed marshalling data to json")
-	}
-	w.Write(jsonData)
 }
 
 func QueryUserAndMood(conn *pgx.Conn, record *MoodRecord) error {
