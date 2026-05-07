@@ -102,11 +102,11 @@ func signupValidation(mux *http.ServeMux, conn *pgx.Conn) {
 			return
 		}
 
-		var record db.UserRecord
+		var emailAndUserRecord db.UserRecord
 
 		res = db.UserSignupResponse{}
 
-		err = db.QueryEmailAndUser(conn, e, u, &record)
+		err = db.QueryEmailAndUser(conn, e, u, &emailAndUserRecord)
 
 		if err != nil {
 			res.EmailError = "this email or username has been registered"
