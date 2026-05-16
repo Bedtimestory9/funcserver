@@ -42,13 +42,10 @@ submitButn.addEventListener("click", async (e) => {
       age: ageVal,
     });
 
-    const response = await fetch(
-      domain + "/service/validation/signup-validation",
-      {
-        method: "POST",
-        body: jsonBody,
-      },
-    );
+    const response = await fetch(domain + "/service/signup", {
+      method: "POST",
+      body: jsonBody,
+    });
 
     const responseJSON: UserSignupResponse = await response.json();
     if (bannerText) {

@@ -6,61 +6,64 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"path/filepath"
 	"strings"
 )
 
-type MainRoute struct {
-	Route string
+type Page struct {
+	PageType string
 }
 
-func serveTemplate(w http.ResponseWriter, pageRoute string) {
-	wd, err := os.Getwd()
-	if err != nil {
-		log.Fatal(err)
-	}
+func NewPage() *Page {
+	return &Page{}
+}
 
-	routeParam := strings.Split(pageRoute, "/")[1]
+var templ = func() *template.Template {
+	files := []string{"../../public/views/layout.html"}
 
-	// the order of the files matter, base first
-	tmpl, err := template.ParseFiles(wd+"/server/views/layout.html", wd+"/server/views/"+routeParam+"/"+routeParam+".html")
+	err := filepath.Walk("../../public/views/content/", func(path string, d os.FileInfo, err error) error {
+		if strings.HasSuffix(path, ".html") {
+			files = append(files, path)
+		}
+		return nil
+	})
+
 	if err != nil {
 		panic(err)
 	}
-	err = tmpl.Execute(w, nil)
+
+	t := template.Must(template.ParseFiles(files...))
+	return t
+}()
+
+func (p *Page) HomePageHandler(w http.ResponseWriter, r *http.Request) {
+	p.PageType = "home"
+	err := templ.ExecuteTemplate(w, "layout", &p)
 	if err != nil {
-		panic(err)
+		log.Println(err)
 	}
 }
 
-func (m MainRoute) pageHandler(w http.ResponseWriter, r *http.Request) {
-	switch m.Route {
-	case "/":
-		m.Route = "home"
-		serveTemplate(w, m.Route)
-	case "/service":
-		w.WriteHeader(404)
-		w.Write([]byte("Page not found"))
-	default:
-		serveTemplate(w, m.Route)
+func (p *Page) LoginPageHandler(w http.ResponseWriter, r *http.Request) {
+	p.PageType = "login"
+	err := templ.ExecuteTemplate(w, "layout", &p)
+	if err != nil {
+		log.Println(err)
 	}
 }
 
-func RouterPipe(mux *http.ServeMux) {
-	routes := []string{
-		"/",
-		"/home",
-		"/login",
-		"/product",
-		"/interaction",
-		"/signup",
-		// "service" does not serve any page
-		"/service",
+func (p *Page) SignupPageHandler(w http.ResponseWriter, r *http.Request) {
+	p.PageType = "signup"
+	err := templ.ExecuteTemplate(w, "layout", &p)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
 	}
+}
 
-	mainRoute := MainRoute{}
-
-	for _, r := range routes {
-		mainRoute.Route = r
-		mux.HandleFunc(r, mainRoute.pageHandler)
+func (p *Page) InteractionPageHandler(w http.ResponseWriter, r *http.Request) {
+	p.PageType = "interaction"
+	err := templ.ExecuteTemplate(w, "layout", &p)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
 	}
 }
