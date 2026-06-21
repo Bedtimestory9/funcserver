@@ -11,17 +11,22 @@ import (
 )
 
 type Page struct {
-	PageType string
+	PageType  string
+	templates *template.Template
 }
+
+const ProjectRoot = "/Users/lawrence/Projects/Learn WebDev/functional-server/"
 
 func NewPage() *Page {
-	return &Page{}
+	return &Page{
+		templates: setupTemplates(),
+	}
 }
 
-var templ = func() *template.Template {
-	files := []string{"../../public/views/layout.html"}
+func setupTemplates() *template.Template {
+	files := []string{ProjectRoot + "/public/views/layout.html"}
 
-	err := filepath.Walk("../../public/views/content/", func(path string, d os.FileInfo, err error) error {
+	err := filepath.Walk(ProjectRoot+"/public/views/content/", func(path string, d os.FileInfo, err error) error {
 		if strings.HasSuffix(path, ".html") {
 			files = append(files, path)
 		}
@@ -34,11 +39,11 @@ var templ = func() *template.Template {
 
 	t := template.Must(template.ParseFiles(files...))
 	return t
-}()
+}
 
 func (p *Page) HomePageHandler(w http.ResponseWriter, r *http.Request) {
 	p.PageType = "home"
-	err := templ.ExecuteTemplate(w, "layout", &p)
+	err := p.templates.ExecuteTemplate(w, "layout", &p)
 	if err != nil {
 		log.Println(err)
 	}
@@ -46,7 +51,7 @@ func (p *Page) HomePageHandler(w http.ResponseWriter, r *http.Request) {
 
 func (p *Page) LoginPageHandler(w http.ResponseWriter, r *http.Request) {
 	p.PageType = "login"
-	err := templ.ExecuteTemplate(w, "layout", &p)
+	err := p.templates.ExecuteTemplate(w, "layout", &p)
 	if err != nil {
 		log.Println(err)
 	}
@@ -54,7 +59,7 @@ func (p *Page) LoginPageHandler(w http.ResponseWriter, r *http.Request) {
 
 func (p *Page) SignupPageHandler(w http.ResponseWriter, r *http.Request) {
 	p.PageType = "signup"
-	err := templ.ExecuteTemplate(w, "layout", &p)
+	err := p.templates.ExecuteTemplate(w, "layout", &p)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 	}
@@ -62,7 +67,7 @@ func (p *Page) SignupPageHandler(w http.ResponseWriter, r *http.Request) {
 
 func (p *Page) InteractionPageHandler(w http.ResponseWriter, r *http.Request) {
 	p.PageType = "interaction"
-	err := templ.ExecuteTemplate(w, "layout", &p)
+	err := p.templates.ExecuteTemplate(w, "layout", &p)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 	}

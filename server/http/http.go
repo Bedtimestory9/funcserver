@@ -12,8 +12,8 @@ func NewHTTPServer(addr string) *http.Server {
 
 	r := http.NewServeMux()
 
-	r.Handle("/styles.css", http.FileServer(http.Dir("../../public")))
-	r.Handle("/scripts/", http.FileServer(http.Dir("../../public")))
+	r.Handle("/styles.css", http.FileServer(http.Dir(page.ProjectRoot+"/public")))
+	r.Handle("/scripts/", http.FileServer(http.Dir(page.ProjectRoot+"/public")))
 
 	r.HandleFunc("/home", p.HomePageHandler)
 	r.HandleFunc("/login", p.LoginPageHandler)
