@@ -20,13 +20,13 @@
         </nav>
     </header>
     <main class="content">
-        {{ if eq .PageType "home" }}
+        {{ if eq .TemplateTypeName "home" }}
         {{ template "homeContent" . }}
-        {{ else if eq .PageType "login" }}
+        {{ else if eq .TemplateTypeName "login" }}
         {{ template "loginContent" . }}
-        {{ else if eq .PageType "signup" }}
+        {{ else if eq .TemplateTypeName "signup" }}
         {{ template "signupContent" . }}
-        {{ else if eq .PageType "interaction" }}
+        {{ else if eq .TemplateTypeName "interaction" }}
         {{ template "interactionContent" . }}
         {{ end }}
     </main>

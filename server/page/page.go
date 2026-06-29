@@ -2,6 +2,7 @@
 package page
 
 import (
+	"funcserver/server/misc"
 	"html/template"
 	"log"
 	"net/http"
@@ -11,11 +12,14 @@ import (
 )
 
 type Page struct {
-	PageType  string
+	Login
+	TemplateType
 	templates *template.Template
 }
 
-const ProjectRoot = "/Users/lawrence/Projects/Learn WebDev/functional-server/"
+type TemplateType struct {
+	TemplateTypeName string
+}
 
 func NewPage() *Page {
 	return &Page{
@@ -24,9 +28,11 @@ func NewPage() *Page {
 }
 
 func setupTemplates() *template.Template {
-	files := []string{ProjectRoot + "/public/views/layout.html"}
+	rootDir := misc.GetCmdDir()
 
-	err := filepath.Walk(ProjectRoot+"/public/views/content/", func(path string, d os.FileInfo, err error) error {
+	files := []string{rootDir + "/public/views/layout.html"}
+
+	err := filepath.Walk(rootDir+"/public/views/content/", func(path string, d os.FileInfo, err error) error {
 		if strings.HasSuffix(path, ".html") {
 			files = append(files, path)
 		}
@@ -42,7 +48,8 @@ func setupTemplates() *template.Template {
 }
 
 func (p *Page) HomePageHandler(w http.ResponseWriter, r *http.Request) {
-	p.PageType = "home"
+	// NOTE: This is to pass in template data
+	p.TemplateTypeName = "home"
 	err := p.templates.ExecuteTemplate(w, "layout", &p)
 	if err != nil {
 		log.Println(err)
@@ -50,15 +57,16 @@ func (p *Page) HomePageHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func (p *Page) LoginPageHandler(w http.ResponseWriter, r *http.Request) {
-	p.PageType = "login"
+	p.TemplateTypeName = "login"
 	err := p.templates.ExecuteTemplate(w, "layout", &p)
 	if err != nil {
 		log.Println(err)
 	}
+
 }
 
 func (p *Page) SignupPageHandler(w http.ResponseWriter, r *http.Request) {
-	p.PageType = "signup"
+	p.TemplateTypeName = "signup"
 	err := p.templates.ExecuteTemplate(w, "layout", &p)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -66,7 +74,7 @@ func (p *Page) SignupPageHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func (p *Page) InteractionPageHandler(w http.ResponseWriter, r *http.Request) {
-	p.PageType = "interaction"
+	p.TemplateTypeName = "interaction"
 	err := p.templates.ExecuteTemplate(w, "layout", &p)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
